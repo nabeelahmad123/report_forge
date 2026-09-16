@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { RegWatchCard } from '../components/RegWatchCard'
+import { usePageTitle } from '../hooks/usePageTitle'
 import { fetchFeed } from '../lib/api'
 import { categoryColor, REGWATCH_CATEGORY_ORDER } from '../lib/colors'
 import type { FeedResponse, RegWatchCategory } from '../types'
@@ -11,6 +12,7 @@ function Skeleton({ className }: { className?: string }) {
 }
 
 export function RegWatchPage() {
+  usePageTitle('RegWatch')
   const [status, setStatus] = useState<Status>('loading')
   const [error, setError] = useState<string | null>(null)
   const [feed, setFeed] = useState<FeedResponse | null>(null)

@@ -4,12 +4,14 @@ import { DegradationCurveChart } from '../components/DegradationCurveChart'
 import { ReportPane } from '../components/ReportPane'
 import { RunSummaryCard } from '../components/RunSummaryCard'
 import type { ReportFlow } from '../hooks/useReportFlow'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 function Skeleton({ className }: { className?: string }) {
   return <div className={`animate-pulse rounded-md bg-slate-200 dark:bg-slate-800 ${className ?? ''}`} />
 }
 
 export function ReportPage(flow: ReportFlow) {
+  usePageTitle('Lab Report')
   const { status, error, metrics, selectedRunId, setSelectedRunId, report, loadDemo, upload, generate } = flow
   const selectedRun = metrics?.runs.find((r) => r.run_id === selectedRunId) ?? metrics?.runs[0]
 
