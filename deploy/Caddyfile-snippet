@@ -6,11 +6,9 @@
 
 # ReportForge (third project on this droplet, see /opt/reportforge).
 # Static Vite SPA at / (reportforge-frontend), FastAPI at /api/*
-# (reportforge-backend) — one hostname, path-based routing, no owned
-# domain needed (nip.io wildcard DNS resolves <anything>.<ip>.nip.io
-# back to this droplet's IP, and Caddy still gets it a real Let's
-# Encrypt cert since it's a resolvable hostname).
-reportforge.159.223.226.180.nip.io {
+# (reportforge-backend) — one hostname, path-based routing. Same
+# free-DNS pattern as procurematch.duckdns.org above.
+reportforge.duckdns.org {
 	encode zstd gzip
 	handle_path /api/* {
 		reverse_proxy reportforge-backend:8000

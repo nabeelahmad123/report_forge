@@ -18,7 +18,7 @@ ANTHROPIC_API_KEY=sk-ant-...
 LLM_MODEL=claude-haiku-4-5
 REPORT_RATE_LIMIT_PER_MINUTE=10
 MAX_LLM_SPEND_USD=5.0
-FRONTEND_ORIGIN=https://reportforge.159.223.226.180.nip.io
+FRONTEND_ORIGIN=https://reportforge.duckdns.org
 EOF
 
 docker compose -f docker-compose.prod.yml build
