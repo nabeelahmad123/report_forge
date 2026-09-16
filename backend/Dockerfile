@@ -10,6 +10,7 @@ ENV PATH="/app/.venv/bin:${PATH}"
 
 COPY app ./app
 COPY scripts ./scripts
+COPY data ./data
 RUN python scripts/generate_demo_data.py
 
 EXPOSE 8000
