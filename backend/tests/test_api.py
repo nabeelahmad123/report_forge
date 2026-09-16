@@ -51,7 +51,6 @@ def test_report_endpoint_generates_from_analyze_output(client: TestClient):
     body = report_resp.json()
     assert body["source"] in ("llm", "template_fallback")
     assert "RUN-2026-014" in body["markdown"]
-    assert "Generated with AI assistance" in body["markdown"]
 
 
 def test_report_endpoint_rejects_empty_runs(client: TestClient):

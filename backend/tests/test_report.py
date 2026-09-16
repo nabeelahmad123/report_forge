@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 from app.models import AnalyzeResponse, AnomalyFlag, CompoundMetrics, ElectrodeTrend, RunMetrics
 from app.ratelimit import InMemoryRateLimiter
-from app.report import DISCLAIMER, REPORT_SECTIONS, generate_report
+from app.report import REPORT_SECTIONS, generate_report
 
 
 def _sample_metrics() -> AnalyzeResponse:
@@ -57,7 +57,6 @@ def test_generate_report_uses_template_fallback_when_no_api_key(monkeypatch):
     assert result.model is None
     for section in REPORT_SECTIONS:
         assert f"## {section}" in result.markdown
-    assert DISCLAIMER in result.markdown
     assert "RUN-TEST-1" in result.markdown
 
 
@@ -102,7 +101,7 @@ def test_generate_report_falls_back_when_llm_raises(monkeypatch):
     result = generate_report(_sample_metrics())
 
     assert result.source == "template_fallback"
-    assert DISCLAIMER in result.markdown
+    assert "RUN-TEST-1" in result.markdown
 
 
 def test_rate_limiter_blocks_after_max_requests():

@@ -18,8 +18,6 @@ from app.models import AnalyzeResponse, ReportResponse
 
 logger = logging.getLogger("reportforge.report")
 
-DISCLAIMER = "*Generated with AI assistance — verify before experimental decisions.*"
-
 # claude-haiku-4-5 pricing ($/1M tokens) — used only for the spend guard's
 # rough running estimate below, not billing-accurate if LLM_MODEL is changed.
 _HAIKU_INPUT_USD_PER_MTOK = 1.00
@@ -107,7 +105,6 @@ def _build_user_prompt(metrics: AnalyzeResponse) -> str:
         "Recommendations: 3-5 concrete, specific next steps referencing actual run_ids/electrode_pairs "
         "from the data.\n"
         "Appendix: a compact Markdown table of the key metrics per run/compound.\n\n"
-        f"End the report with this exact line verbatim: {DISCLAIMER}\n\n"
         f"Experiment metrics and reference benchmarks (JSON):\n```json\n{json.dumps(payload, indent=2)}\n```"
     )
 
@@ -226,8 +223,6 @@ def _template_report(metrics: AnalyzeResponse) -> str:
                 f"| {run.run_id} | {c.compound} | {c.c0_ug_l:.1f} | {c.c_end_ug_l:.2f} | "
                 f"{c.degradation_efficiency_pct:.1f}% | {half_life} | {eeo} |"
             )
-    lines.append("")
-    lines.append(DISCLAIMER)
 
     return "\n".join(lines)
 
