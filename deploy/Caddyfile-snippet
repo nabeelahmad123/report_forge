@@ -1,0 +1,21 @@
+# Append this block to the shared Caddyfile on the droplet
+# (/opt/learn-german/Caddyfile) — same file learn-german and procurematch
+# already share. Back up the Caddyfile before editing, then:
+#   docker exec learn-german-caddy-1 caddy reload --config /etc/caddy/Caddyfile
+# to apply without dropping existing connections.
+
+# ReportForge (third project on this droplet, see /opt/reportforge).
+# Static Vite SPA at / (reportforge-frontend), FastAPI at /api/*
+# (reportforge-backend) — one hostname, path-based routing, no owned
+# domain needed (nip.io wildcard DNS resolves <anything>.<ip>.nip.io
+# back to this droplet's IP, and Caddy still gets it a real Let's
+# Encrypt cert since it's a resolvable hostname).
+reportforge.159.223.226.180.nip.io {
+	encode zstd gzip
+	handle_path /api/* {
+		reverse_proxy reportforge-backend:8000
+	}
+	handle {
+		reverse_proxy reportforge-frontend:80
+	}
+}

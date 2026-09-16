@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import logging
+import threading
 
 import anthropic
 
@@ -18,6 +19,32 @@ from app.models import AnalyzeResponse, ReportResponse
 logger = logging.getLogger("reportforge.report")
 
 DISCLAIMER = "*Generated with AI assistance — verify before experimental decisions.*"
+
+# claude-haiku-4-5 pricing ($/1M tokens) — used only for the spend guard's
+# rough running estimate below, not billing-accurate if LLM_MODEL is changed.
+_HAIKU_INPUT_USD_PER_MTOK = 1.00
+_HAIKU_OUTPUT_USD_PER_MTOK = 5.00
+
+_spend_lock = threading.Lock()
+_cumulative_spend_usd = 0.0
+
+
+def _spend_cap_reached() -> bool:
+    with _spend_lock:
+        return _cumulative_spend_usd >= settings.max_llm_spend_usd
+
+
+def _record_spend(input_tokens: int, output_tokens: int) -> None:
+    global _cumulative_spend_usd
+    cost = (input_tokens / 1_000_000) * _HAIKU_INPUT_USD_PER_MTOK
+    cost += (output_tokens / 1_000_000) * _HAIKU_OUTPUT_USD_PER_MTOK
+    with _spend_lock:
+        _cumulative_spend_usd += cost
+        total = _cumulative_spend_usd
+    logger.info(
+        "LLM call cost ~$%.4f, cumulative ~$%.2f / $%.2f cap", cost, total, settings.max_llm_spend_usd
+    )
+
 
 REPORT_SECTIONS = [
     "Executive Summary",
@@ -94,6 +121,7 @@ def _call_llm(metrics: AnalyzeResponse) -> str:
         messages=[{"role": "user", "content": _build_user_prompt(metrics)}],
     )
     text_blocks = [block.text for block in response.content if block.type == "text"]
+    _record_spend(response.usage.input_tokens, response.usage.output_tokens)
     return "\n".join(text_blocks).strip()
 
 
@@ -211,6 +239,17 @@ def generate_report(metrics: AnalyzeResponse) -> ReportResponse:
 
     if not settings.anthropic_api_key:
         logger.info("No ANTHROPIC_API_KEY configured — using template fallback report")
+        return ReportResponse(
+            markdown=_template_report(metrics),
+            source="template_fallback",
+            model=None,
+            generated_at=generated_at,
+        )
+
+    if _spend_cap_reached():
+        logger.warning(
+            "LLM spend cap ($%.2f) reached — using template fallback report", settings.max_llm_spend_usd
+        )
         return ReportResponse(
             markdown=_template_report(metrics),
             source="template_fallback",

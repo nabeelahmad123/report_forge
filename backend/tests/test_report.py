@@ -65,7 +65,8 @@ def test_generate_report_uses_llm_when_available(monkeypatch):
     monkeypatch.setattr("app.report.settings.anthropic_api_key", "fake-key")
 
     fake_response = SimpleNamespace(
-        content=[SimpleNamespace(type="text", text="## Executive Summary\nMocked LLM report body.")]
+        content=[SimpleNamespace(type="text", text="## Executive Summary\nMocked LLM report body.")],
+        usage=SimpleNamespace(input_tokens=100, output_tokens=200),
     )
 
     class FakeMessages:
@@ -131,3 +132,49 @@ def test_generate_report_template_handles_no_anomalies():
     metrics.runs[0].electrode_trend.trend = "stable"
     result = generate_report(metrics)
     assert "No anomalies flagged." in result.markdown
+
+
+def _fake_anthropic_client(input_tokens: int, output_tokens: int):
+    fake_response = SimpleNamespace(
+        content=[SimpleNamespace(type="text", text="## Executive Summary\nBody.")],
+        usage=SimpleNamespace(input_tokens=input_tokens, output_tokens=output_tokens),
+    )
+
+    class FakeMessages:
+        def create(self, **kwargs):
+            return fake_response
+
+    class FakeAnthropicClient:
+        def __init__(self, api_key=None):
+            self.messages = FakeMessages()
+
+    return FakeAnthropicClient
+
+
+def test_generate_report_skips_llm_once_spend_cap_reached(monkeypatch):
+    monkeypatch.setattr("app.report.settings.anthropic_api_key", "fake-key")
+    monkeypatch.setattr("app.report.settings.max_llm_spend_usd", 0.0005)
+    monkeypatch.setattr("app.report.anthropic.Anthropic", _fake_anthropic_client(100, 100))
+
+    first = generate_report(_sample_metrics())
+    assert first.source == "llm"
+
+    # That single call already exceeds the tiny cap, so the next request
+    # must skip the LLM entirely rather than spend further.
+    second = generate_report(_sample_metrics())
+    assert second.source == "template_fallback"
+
+
+def test_record_spend_accumulates_across_calls(monkeypatch):
+    import app.report as report_module
+
+    monkeypatch.setattr(report_module.settings, "anthropic_api_key", "fake-key")
+    monkeypatch.setattr(report_module, "_cumulative_spend_usd", 0.0)
+
+    report_module._record_spend(input_tokens=1_000_000, output_tokens=0)
+    assert report_module._cumulative_spend_usd == report_module._HAIKU_INPUT_USD_PER_MTOK
+
+    report_module._record_spend(input_tokens=0, output_tokens=1_000_000)
+    assert report_module._cumulative_spend_usd == (
+        report_module._HAIKU_INPUT_USD_PER_MTOK + report_module._HAIKU_OUTPUT_USD_PER_MTOK
+    )

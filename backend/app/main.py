@@ -1,6 +1,7 @@
 import logging
 
 from fastapi import FastAPI, HTTPException, Request, UploadFile
+from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.analysis import InvalidExperimentDataError, compute_metrics, load_experiment_csv
@@ -58,8 +59,10 @@ async def analyze(file: UploadFile | None = None, use_demo: bool = False) -> Ana
         raise HTTPException(status_code=422, detail="Provide either a CSV file upload or use_demo=true")
 
     try:
-        df = load_experiment_csv(raw_bytes)
-        result = compute_metrics(df, source=source)
+        # CPU-bound (pandas/scipy curve fitting) — run off the event loop so
+        # one large upload can't stall every other in-flight request.
+        df = await run_in_threadpool(load_experiment_csv, raw_bytes)
+        result = await run_in_threadpool(compute_metrics, df, source)
     except InvalidExperimentDataError as exc:
         logger.warning("Rejected invalid experiment data: %s", exc)
         raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -77,7 +80,9 @@ async def report(metrics: AnalyzeResponse, request: Request) -> ReportResponse:
     if not metrics.runs:
         raise HTTPException(status_code=422, detail="No runs provided in metrics payload")
 
-    result = generate_report(metrics)
+    # A real LLM call here runs 45-60s; run it off the event loop so it
+    # doesn't stall every other in-flight request (including /health).
+    result = await run_in_threadpool(generate_report, metrics)
     logger.info("Generated report (source=%s) for %d run(s)", result.source, len(metrics.runs))
     return result
 

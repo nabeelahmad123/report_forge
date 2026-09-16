@@ -13,6 +13,13 @@ def no_real_llm_calls_by_default(monkeypatch):
     monkeypatch.setattr(settings, "anthropic_api_key", None)
 
 
+@pytest.fixture(autouse=True)
+def reset_llm_spend_tracker(monkeypatch):
+    """The spend guard's running total is module-level state — reset it per
+    test so cap behavior in one test can't leak into another."""
+    monkeypatch.setattr("app.report._cumulative_spend_usd", 0.0)
+
+
 @pytest.fixture()
 def client() -> TestClient:
     return TestClient(app)

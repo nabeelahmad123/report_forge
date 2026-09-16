@@ -1,0 +1,52 @@
+# Production stack for the shared droplet. Lives at /opt/reportforge on the
+# server (see deploy/README.md). Joins the learn-german project's existing
+# `learn-german_default` network so its shared Caddy instance can
+# reverse_proxy to these containers by name — neither service publishes a
+# host port itself. Same pattern as /opt/procurematch on this box.
+name: reportforge
+
+services:
+  # Service/container name deliberately NOT "backend" — that alias is
+  # already claimed by learn-german's own backend service on this shared
+  # network (Compose auto-registers the service name as a network DNS
+  # alias, and a same-named service here would collide with it).
+  reportforge-backend:
+    build: ./backend
+    image: reportforge-backend:latest
+    container_name: reportforge-backend
+    env_file:
+      - ./backend/.env # hand-written on the server, never committed
+    networks:
+      learn-german_default:
+        aliases:
+          - reportforge-backend
+    restart: unless-stopped
+    # Ceiling, not a reservation — contains a runaway to this container
+    # alone rather than risking the other projects on this shared box.
+    mem_limit: 400m
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # Static Vite SPA baked into the image itself at build time (no bind
+  # mount) — redeploying the frontend never touches the shared Caddy
+  # container or its config.
+  reportforge-frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api
+    image: reportforge-frontend:latest
+    container_name: reportforge-frontend
+    networks:
+      learn-german_default:
+        aliases:
+          - reportforge-frontend
+    restart: unless-stopped
+    mem_limit: 64m
+
+networks:
+  learn-german_default:
+    external: true
