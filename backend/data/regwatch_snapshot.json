@@ -1,0 +1,74 @@
+[
+  {
+    "title": "ECHA Opens Public Consultation on Universal PFAS Restriction Proposal",
+    "source": "ECHA",
+    "published_at": "2026-08-25T09:00:00Z",
+    "url": "https://echa.europa.eu/",
+    "summary": "The European Chemicals Agency has opened a public consultation on a broad restriction covering the manufacture, use, and placing on the market of PFAS as a class, with limited use-specific derogations under review.",
+    "category": "Regulation",
+    "relevance_score": 5
+  },
+  {
+    "title": "ECHA Proposes Restriction Amendment Targeting PFHxS and Related Substances",
+    "source": "ECHA",
+    "published_at": "2026-08-14T09:00:00Z",
+    "url": "https://echa.europa.eu/",
+    "summary": "A proposed amendment would extend existing PFOS-style restrictions to PFHxS and its salts, citing persistence and bioaccumulation data submitted by member state authorities.",
+    "category": "Regulation",
+    "relevance_score": 5
+  },
+  {
+    "title": "EU Drinking Water Directive: Tighter PFAS Limits Take Effect Across Member States",
+    "source": "European Commission",
+    "published_at": "2026-07-30T09:00:00Z",
+    "url": "https://environment.ec.europa.eu/",
+    "summary": "Revised total-PFAS and \"sum of 20\" thresholds under the recast Drinking Water Directive are now binding for water suppliers, with compliance deadlines staggered through 2028 for smaller utilities.",
+    "category": "Regulation",
+    "relevance_score": 4
+  },
+  {
+    "title": "US EPA Finalizes Enforcement Guidance for PFAS Drinking Water MCLs",
+    "source": "US EPA",
+    "published_at": "2026-07-18T09:00:00Z",
+    "url": "https://www.epa.gov/sdwa",
+    "summary": "EPA published enforcement discretion guidance for public water systems working toward compliance with maximum contaminant levels for PFOA and PFOS, including monitoring and treatment technology benchmarks.",
+    "category": "Regulation",
+    "relevance_score": 4
+  },
+  {
+    "title": "Umweltbundesamt Publishes Updated PFAS Soil Screening Values for Industrial Sites",
+    "source": "Umweltbundesamt (UBA)",
+    "published_at": "2026-07-05T09:00:00Z",
+    "url": "https://www.umweltbundesamt.de/",
+    "summary": "Germany's federal environment agency revised precautionary soil and groundwater screening values for several PFAS compounds at contaminated industrial and landfill sites, tightening thresholds for short-chain substances.",
+    "category": "Science",
+    "relevance_score": 4
+  },
+  {
+    "title": "Peer-Reviewed Study: Electrochemical Oxidation Shows Promise for Cost-Effective PFAS Destruction at Scale",
+    "source": "Water Research",
+    "published_at": "2026-06-22T09:00:00Z",
+    "url": "https://www.sciencedirect.com/journal/water-research",
+    "summary": "A pilot-scale study of boron-doped diamond electrode systems reports high degradation efficiency for short- and long-chain PFAS in landfill leachate, with energy demand identified as the primary scale-up cost driver.",
+    "category": "Science",
+    "relevance_score": 5
+  },
+  {
+    "title": "German Landfill Operator Named in Class Action Over PFAS Leachate Contamination",
+    "source": "Reuters",
+    "published_at": "2026-06-10T09:00:00Z",
+    "url": "https://www.reuters.com/",
+    "summary": "A regional landfill operator faces a civil suit alleging insufficient leachate treatment led to PFAS contamination of nearby groundwater, adding to a growing wave of European PFAS liability litigation.",
+    "category": "Litigation",
+    "relevance_score": 3
+  },
+  {
+    "title": "Major Chemicals Manufacturer Expands PFAS Remediation Fund for European Sites",
+    "source": "Chemistry World",
+    "published_at": "2026-05-28T09:00:00Z",
+    "url": "https://www.chemistryworld.com/",
+    "summary": "Following settlements in North America, a global chemicals manufacturer announced additional remediation funding earmarked for European manufacturing and disposal sites with documented PFAS releases.",
+    "category": "Industry",
+    "relevance_score": 3
+  }
+]

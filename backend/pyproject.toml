@@ -1,0 +1,39 @@
+[project]
+name = "reportforge-backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=1.6.0",
+    "fastapi>=0.141.1",
+    "numpy>=2.4.6",
+    "pandas>=3.0.5",
+    "pydantic-settings>=2.15.0",
+    "python-multipart>=0.0.32",
+    "scipy>=1.17.1",
+    "uvicorn[standard]>=0.53.0",
+]
+
+[dependency-groups]
+dev = [
+    "black>=26.5.1",
+    "httpx>=0.28.1",
+    "pre-commit>=4.6.2",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.16.8",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "C4"]
+# DTZ (naive-datetime) intentionally not enabled: experiment timestamps are
+# lab-local naive datetimes by design (spec §4.1), not tz-aware instants.
+
+[tool.black]
+line-length = 110
+target-version = ["py311"]
