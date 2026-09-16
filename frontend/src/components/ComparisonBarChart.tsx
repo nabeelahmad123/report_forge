@@ -58,6 +58,7 @@ export function ComparisonBarChart({
               fill={compoundColor(compound, isDark)}
               maxBarSize={24}
               radius={[4, 4, 0, 0]}
+              isAnimationActive={false}
             />
           ))}
         </BarChart>
