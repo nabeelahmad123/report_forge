@@ -1,69 +1,16 @@
-import { useState } from 'react'
 import { AnomalyList } from '../components/AnomalyList'
 import { ComparisonBarChart } from '../components/ComparisonBarChart'
 import { DegradationCurveChart } from '../components/DegradationCurveChart'
 import { ReportPane } from '../components/ReportPane'
 import { RunSummaryCard } from '../components/RunSummaryCard'
-import { analyzeDemoDataset, analyzeUpload, generateReport } from '../lib/api'
-import type { AnalyzeResponse, ReportResponse } from '../types'
-
-type Status = 'idle' | 'loading-metrics' | 'ready' | 'loading-report' | 'error'
+import type { ReportFlow } from '../hooks/useReportFlow'
 
 function Skeleton({ className }: { className?: string }) {
   return <div className={`animate-pulse rounded-md bg-slate-200 dark:bg-slate-800 ${className ?? ''}`} />
 }
 
-export function ReportPage() {
-  const [status, setStatus] = useState<Status>('idle')
-  const [error, setError] = useState<string | null>(null)
-  const [metrics, setMetrics] = useState<AnalyzeResponse | null>(null)
-  const [selectedRunId, setSelectedRunId] = useState<string | null>(null)
-  const [report, setReport] = useState<ReportResponse | null>(null)
-
-  async function handleLoadDemo() {
-    setStatus('loading-metrics')
-    setError(null)
-    setReport(null)
-    try {
-      const result = await analyzeDemoDataset()
-      setMetrics(result)
-      setSelectedRunId(result.runs[0]?.run_id ?? null)
-      setStatus('ready')
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load demo dataset')
-      setStatus('error')
-    }
-  }
-
-  async function handleUpload(file: File) {
-    setStatus('loading-metrics')
-    setError(null)
-    setReport(null)
-    try {
-      const result = await analyzeUpload(file)
-      setMetrics(result)
-      setSelectedRunId(result.runs[0]?.run_id ?? null)
-      setStatus('ready')
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to analyze CSV')
-      setStatus('error')
-    }
-  }
-
-  async function handleGenerateReport() {
-    if (!metrics) return
-    setStatus('loading-report')
-    setError(null)
-    try {
-      const result = await generateReport(metrics)
-      setReport(result)
-      setStatus('ready')
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to generate report')
-      setStatus('ready')
-    }
-  }
-
+export function ReportPage(flow: ReportFlow) {
+  const { status, error, metrics, selectedRunId, setSelectedRunId, report, loadDemo, upload, generate } = flow
   const selectedRun = metrics?.runs.find((r) => r.run_id === selectedRunId) ?? metrics?.runs[0]
 
   return (
@@ -83,7 +30,7 @@ export function ReportPage() {
           <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center dark:border-slate-700 dark:bg-slate-900">
             <button
               type="button"
-              onClick={handleLoadDemo}
+              onClick={loadDemo}
               className="rounded-lg bg-teal-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-teal-700"
             >
               Load demo dataset
@@ -97,7 +44,7 @@ export function ReportPage() {
                 type="file"
                 accept=".csv"
                 className="hidden"
-                onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])}
+                onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
               />
             </label>
           </div>
@@ -171,7 +118,7 @@ export function ReportPage() {
                 {!report && status !== 'loading-report' && (
                   <button
                     type="button"
-                    onClick={handleGenerateReport}
+                    onClick={generate}
                     className="w-full rounded-lg bg-teal-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-teal-700"
                   >
                     Generate AI Report
